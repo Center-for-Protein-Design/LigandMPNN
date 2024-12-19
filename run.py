@@ -64,6 +64,15 @@ def main(args) -> None:
     else:
         print("Choose one of the available models")
         sys.exit()
+
+    # Edited
+    # If the checkpoint isn't in the local directory, try to load it relative to the script directory.
+    if not os.path.exists(checkpoint_path):
+        alt_path = os.path.join( os.path.dirname(os.path.abspath(__file__)), checkpoint_path )
+        if os.path.exists(alt_path):
+            checkpoint_path = alt_path
+    # End edit    
+
     checkpoint = torch.load(checkpoint_path, map_location=device)
     if args.model_type == "ligand_mpnn":
         atom_context_num = checkpoint["atom_context_num"]
@@ -126,6 +135,9 @@ def main(args) -> None:
     if args.fixed_residues_multi:
         with open(args.fixed_residues_multi, "r") as fh:
             fixed_residues_multi = json.load(fh)
+            # hailey edit to add following line
+            fixed_residues_multi = { pdb:fixed_residues.split() for pdb,fixed_residues in fixed_residues_multi.items() }    
+
     else:
         fixed_residues = [item for item in args.fixed_residues.split()]
         fixed_residues_multi = {}
@@ -135,6 +147,9 @@ def main(args) -> None:
     if args.redesigned_residues_multi:
         with open(args.redesigned_residues_multi, "r") as fh:
             redesigned_residues_multi = json.load(fh)
+            # hailey edit to add following line
+            redesigned_residues_multi = { pdb:redesigned_residues.split() for pdb,redesigned_residues in redesigned_residues_multi.items() }
+
     else:
         redesigned_residues = [item for item in args.redesigned_residues.split()]
         redesigned_residues_multi = {}
